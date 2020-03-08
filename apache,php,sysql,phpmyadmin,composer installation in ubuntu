@@ -1,0 +1,294 @@
+#update linux
+sudo apt update
+
+#install latest apache
+sudo apt install apache2
+
+#start apache 
+sudo systemctl start apache2
+
+#check apache status
+sudo systemctl status apache2
+
+#ufw is firewall config
+sudo ufw app list
+
+#for adding permission to user
+sudo chown ubuntu: test1
+
+#to get list of command used
+history
+
+#systemctl is used to examine and control the state of “systemd” system and service manager.
+sudo systemctl status mysql
+
+
+#ps is process command to check running process and user
+ps -ef
+
+#apt remove just removes the binaries of a package. It leaves residue configuration files.
+sudo apt-get purge phpmyadmin*
+sudo apt-get purge mysql-server
+
+#apt purge removes everything related to a package including the configuration files.
+sudo apt-get remove --purge mysql-server mysql-client mysql-common -y
+
+#to remove mysql completely
+#autoremove: is used to remove packages that were automatically installed to satisfy dependencies for some package and that are no more needed.
+#Like clean, autoclean clears out the local repository of retrieved package files. The difference is that it only removes package files that can no longer be downloaded, and are largely useless. 
+1.
+sudo apt-get purge mysql-server
+2.
+sudo apt-get remove --purge mysql-server mysql-client mysql-common -y
+3.
+rm -rf /etc/mysql
+4.
+sudo find / -iname 'mysql*' -exec rm -rf {} \;
+5.
+sudo apt-get autoremove -y
+6.
+sudo apt-get autoclean
+7.
+sudo find / -iname 'mysql*' -exec rm -rf {} \;
+
+
+
+
+
+####################################to install server####################
+can goto link for better details
+https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-ubuntu-18-04
+
+1#update  system with the follow commands
+
+sudo apt update
+
+sudo apt-get update
+
+sudo apt upgrade
+
+
+
+
+2#install apache ,start and check status and 
+
+sudo apt install apache2
+
+sudo systemctl start apache2
+
+sudo systemctl status apache2
+
+
+
+
+3#add apache to firewall list if not present with ufw 
+
+sudo ufw app list
+
+sudo ufw app list
+
+sudo ufw app info "Apache Full"
+
+sudo ufw allow in "Apache Full"
+
+
+
+
+4#install curl
+
+sudo apt install curl
+
+
+
+
+5#install mysql server,then initialize if not,check status of mysql
+also refer to this page for more information https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-18-04
+
+sudo apt install mysql-server
+
+mysqld --initialize
+
+systemctl status mysql.service
+
+
+
+
+6#to login to mysql used
+
+sudo mysql
+-or-
+mysql -u root -p
+
+
+7#setup users in mysql and grant priviledges,flush privildge(all these commands in mysql)
+
+mysql> //shows if the users have authentications
+SELECT user,authentication_string,plugin,host FROM mysql.user;
+
+mysql> //add authentication
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+mysql> //Then, run FLUSH PRIVILEGES which tells the server to reload the grant tables and put your new changes into effect
+FLUSH PRIVILEGES;
+
+mysql> //check if the permissions are updated with the first mysql command and exit
+exit
+-or you can run the following commands before exiting-
+mysql> //create a new user and give it a strong password ,here "UBUNTU" is my user
+CREATE USER 'ubuntu'@'localhost' IDENTIFIED BY 'password'
+
+mysql> //grant the user privileges to all tables within the database, as well as the power to add, change, and remove user privileges, with this command
+GRANT ALL PRIVILEGES ON *.* TO 'ubuntu'@'localhost' WITH GRANT OPTION;
+
+mysql> //exit
+exit
+
+
+
+
+8#now check mysql status again //If MySQL isn’t running, you can start it with sudo systemctl start mysql.
+
+systemctl status mysql.service
+
+sudo mysqladmin -p -u root version
+
+
+
+
+9#install php and other library extensions //Once again, leverage the apt system to install PHP. In addition, include some helper packages this time so that 
+PHP code can run under the Apache server and talk to your MySQL database:
+
+
+sudo apt install php libapache2-mod-php php-mysql
+
+
+
+
+10#now Apache will first look for a file called index.html. We want to tell the web server to prefer PHP files over others,
+so make Apache look for an index.php file first.
+
+
+//open dir.conf file
+sudo nano /etc/apache2/mods-enabled/dir.conf
+
+
+replace  this: move index.php ahead of index.html 
+
+
+<IfModule mod_dir.c>
+    DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
+</IfModule>
+
+
+with:
+
+
+<IfModule mod_dir.c>
+    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+
+
+//When you are finished, save and close the file by pressing "CTRL+X". Confirm the save by typing "Y" and then hit "ENTER" to verify the file save location.
+
+
+
+
+11#restart server
+
+sudo systemctl restart apache2
+
+
+
+
+12#uinstall php-cli
+
+sudo apt install php-cli
+
+//to display cli
+apt show php-cli
+ 
+ 
+
+
+13#to gibve permission of a folder/file to a user
+
+sudo chown username: folder
+
+
+
+14#to install php myadmin goto following link https://www.liquidweb.com/kb/install-phpmyadmin-ubuntu-18-04/
+
+sudo apt install phpmyadmin php-mbstring php-gettext
+
+
+1//During this installation you’ll be asked for the webserver selection, we will select Apache2 and select ENTER.
+
+2//In this step, you have the option for automatic setup or to create the database manually.
+For us, we will do the automatic installation by pressing ENTER for yes.
+
+3//At this setup, you’ll be asked to set the phpMyAdmin password. Specifically for the phpMyAdmin user, phpmyadmin,
+you’ll want to save this in a secure spot for later retrieval.
+   
+
+
+
+15#Enable PHP extension.
+phpenmod mbstring 
+
+
+
+
+
+16#If you’re running multiple domains on one server then you’ll want to configure your /etc/apache2/apache2.conf to enable phpMyAdmin to work.
+
+
+//-optional-  copy apache2.conf before editing for backup
+sudo cp source destination
+
+
+//open file
+vim /etc/apache2/apache2.conf
+
+
+//add the line below PRESS "I" to start inserting
+Include /etc/phpmyadmin/apache.conf
+
+
+//save with "ESC" then ":w" to save then  ":qa!" to exit
+
+
+
+
+17#restart server and its done
+systemctl restart apache2
+
+
+
+
+
+18#install composer 
+
+//install wget unzip first
+sudo apt install wget php-cli php-zip unzip
+
+
+//goto dir
+cd ~
+
+
+//run the following commands
+HASH="$(wget -q -O - https://composer.github.io/installer.sig)"
+
+
+//check verification
+php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+  
+  
+//
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+
+//type composer in cmd to check if installed
+composer
+  
+  
